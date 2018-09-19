@@ -210,6 +210,7 @@ def index():
             print('query submitted')
             flash('Your query is now live!')
             return render_template('query.html', title='Query',figmsg="Hello World", form=form )
+        return render_template('query.html', title='Query', form=form)
     else:
         g.auth = ''
         form = LoginForm()
