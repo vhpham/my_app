@@ -1,34 +1,11 @@
-<script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
-<script type="text/javascript" src="{{ url_for('static', filename='mscript.js') }}"></script>
-{% block body %}
-{% if session['logged_in'] %}
-<p>You're logged in already!</p>
-{% else %}
- 
- 
-<form id="formoid">
-	<div class="login">
-		<div class="login-screen">
-			<div class="app-title">
-				<h1>Login</h1>
-			</div>
-			<div class="login-form">
-				<div class="control-group">
-				<input type="text" class="login-field" value="" placeholder="username" name="username" id="username">
-				<label class="login-field-icon fui-user" for="login-name"></label>
-				</div>
-				<div class="control-group">
-				<input type="password" class="login-field" value="" placeholder="password" name="password" id="password">
-				<label class="login-field-icon fui-lock" for="login-pass"></label>
-				</div>
-			    <br>
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-			</div>
-		</div>
-	</div>
-</form>
-                 <input type="submit" value="Log in" class="btn btn-primary btn-large btn-block" id ="btnSubmit">
- 
-{% endif %}
+{% block app_content %}
+    <h1>Sign In</h1>
+    <div class="row" id="login">
+        <div class="col-md-4">
+            {{ wtf.quick_form(form, id="myform") }}
+        </div>
+    </div>
 {% endblock %}
