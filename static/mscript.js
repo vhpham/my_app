@@ -19,16 +19,16 @@ $("#login_form").submit(function(event) {
     complete: function(data){
         if (data.status != 200) {
             alert(data.responseJSON['msg']);
-            authID = '';
         }
         else {
-            console.log('login');
+            //console.log('login');
             authID = data.getResponseHeader('authorization');
             localStorage.setItem('authID', authID);
-            console.log(localStorage.getItem('authID')); 
+            document.getElementById('login').innerHTML = "";
             //document.documentElement.innerHTML = data.responseText;
 
-            document.getElementById('container').outerHTML = jQuery(data.responseText)[9].outerHTML;
+            //document.getElementById('login').style.visibility = 'hidden';
+
             //eval(document.getElementById("myjs").innerHTML);
             //$.ajax({
             //    url: url, 
@@ -74,18 +74,17 @@ $("#query_form").submit(function(event) {
     contentType: "application/json",
     dataType: "json",
     beforeSend: function(xhr) {
-        console.log(localStorage.getItem('authID'));
         xhr.setRequestHeader('Authorization', localStorage.getItem('authID'));
     },            
     complete: function(data){
         if (data.status != 200) {
             alert(data.responseJSON['msg']);
-            console.log(authID);
+            window.location.href ="/";
         }
         else {
-            console.log('query');
+            //console.log('query');
             authID = data.getResponseHeader('authorization');
-            document.getElementById('container').outerHTML = jQuery(data.responseText)[9].outerHTML;
+            //document.getElementById('container').outerHTML = jQuery(data.responseText)[9].outerHTML;
             //eval(document.getElementById("myjs").innerHTML);
         }
     }           
