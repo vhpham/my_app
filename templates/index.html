@@ -5,13 +5,13 @@
     <h1>Sign In</h1>
     <div class="row" id="login">
         <div class="col-md-4">
-            {{ wtf.quick_form(login_form, action="/user_login", id="login_form") }}
+            {{ wtf.quick_form(login_form, action="/", id="login_form") }}
         </div>
     </div>
     <h1>Query</h1>
     <div class="row" id="query">
         <div class="col-md-4">
-            {{ wtf.quick_form(query_form, action="query", id="query_form") }}
+            {{ wtf.quick_form(query_form, action="/", id="query_form") }}
         </div>
-    </div>
+    </div>    
 {% endblock %}

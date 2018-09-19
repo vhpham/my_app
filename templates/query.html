@@ -5,10 +5,16 @@ figmsg = {{ figmsg }};
 
 </script>
 {% block app_content %}
+    <h1>Sign In</h1>
+    <div class="row" id="login">
+        <div class="col-md-4">
+            {{ wtf.quick_form(login_form, action="/user_login", id="login_form") }}
+        </div>
+    </div>
     <h1>Query</h1>
     <div class="row" id="query">
         <div class="col-md-4">
-            {{ wtf.quick_form(form, id="myformquery") }}
+            {{ wtf.quick_form(query_form, action="query", id="query_form") }}
         </div>
     </div>
     <div class="row">  

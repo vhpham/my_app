@@ -1,31 +1,5 @@
-$(function(){
-    $("#btnSubmit").click(function(){
-        $.ajax({
-            url: "/", 
-            type: 'POST',          
-            data: JSON.stringify({"username": $('#username').val(), 
-                                   "password": $('#password').val(),
-                                   "csrf_token": $('#csrf_token').val()
-                                }),
-            contentType: "application/json",
-            dataType: "json",
-            complete: function(data){
-                if (data.status != 200) {
-                    alert(data.responseJSON['msg']);
-                }
-                else {
-                    console.log('hi');
-                }
-            }
-        });
-        
-    }); 
-});
-
-
-var authID = '';
 /* attach a submit handler to the form */
-$("#myformlogin").submit(function(event) {
+$("#login_form").submit(function(event) {
   /* stop form from submitting normally */
   event.preventDefault();
 
@@ -50,8 +24,12 @@ $("#myformlogin").submit(function(event) {
         else {
             console.log('login');
             authID = data.getResponseHeader('authorization');
-            document.documentElement.innerHTML = data.responseText;
-            eval(document.getElementById("myjs").innerHTML);
+            localStorage.setItem('authID', authID);
+            console.log(localStorage.getItem('authID')); 
+            //document.documentElement.innerHTML = data.responseText;
+
+            document.getElementById('container').outerHTML = jQuery(data.responseText)[9].outerHTML;
+            //eval(document.getElementById("myjs").innerHTML);
             //$.ajax({
             //    url: url, 
             //    type: 'GET',          
@@ -78,7 +56,7 @@ $("#myformlogin").submit(function(event) {
 
 //function myFunction(){
 
-$("#myformquery").submit(function(event) {
+$("#query_form").submit(function(event) {
   /* stop form from submitting normally */
   event.preventDefault();
 
@@ -96,7 +74,8 @@ $("#myformquery").submit(function(event) {
     contentType: "application/json",
     dataType: "json",
     beforeSend: function(xhr) {
-        xhr.setRequestHeader('Authorization', authID);
+        console.log(localStorage.getItem('authID'));
+        xhr.setRequestHeader('Authorization', localStorage.getItem('authID'));
     },            
     complete: function(data){
         if (data.status != 200) {
@@ -106,8 +85,8 @@ $("#myformquery").submit(function(event) {
         else {
             console.log('query');
             authID = data.getResponseHeader('authorization');
-            document.documentElement.innerHTML = data.responseText;
-            eval(document.getElementById("myjs").innerHTML);
+            document.getElementById('container').outerHTML = jQuery(data.responseText)[9].outerHTML;
+            //eval(document.getElementById("myjs").innerHTML);
         }
     }           
     });  

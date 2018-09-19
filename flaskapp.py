@@ -24,6 +24,7 @@ app = Flask(__name__)
 app.secret_key = '3000hanover'
 app.config['JWT_SECRET_KEY'] = 'jwt-secret-string'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(seconds=60)
+app.config['WTF_CSRF_ENABLED'] = False
 jwt = JWTManager(app)
 bootstrap = Bootstrap(app)
 #app.config['JWT_BLACKLIST_ENABLED'] = True
@@ -55,7 +56,7 @@ class User(object):
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Sign In')
+    submit = SubmitField('Sign In', id="btnLogin")
     
 class QueryForm(FlaskForm):
     type = SelectField(u'Type', choices = [('FA','FA'),('UEFA','UEFA'),('WC','WC')], validators = [DataRequired()])
@@ -137,15 +138,6 @@ def login():
     else:
         return jsonify({"msg": "Password is wrong"}), 400
 
- 
-@app.route('/user_login', methods=['GET'])
-def user_login():
-    return render_template('login.html')
-#
-#@app.before_request
-#def apply_b4_caching(response):
-#    print('before ' + response.headers)
-
 @app.after_request
 def after(response):
     # todo with response
@@ -154,6 +146,33 @@ def after(response):
         response.headers['Authorization'] = 'Bearer ' + str(val)
     return response
     
+ 
+@app.route('/user_login', methods=['GET','POST'])
+@jwt_optional
+def user_login():
+    current_user = get_jwt_identity()
+    print(current_user)
+    
+    login_form = LoginForm()
+    query_form = QueryForm()
+    wc = [u'Liverpool-NYC',u'NYC-SJS']
+    wc_ch = []
+    for idx,val in enumerate(wc):
+        wc_ch.append(( str(idx),val))
+    query_form.match.choices = wc_ch
+    
+    if login_form.validate_on_submit():
+        flash('Login!')
+        access_token = create_access_token(identity=login_form.username.data)
+        g.auth = access_token
+        return render_template('query.html', title='Query',figmsg="Hello World", query_form=query_form, login_form=login_form )
+    return render_template('login.html', title='Login',query_form=query_form, login_form=login_form)
+#
+#@app.before_request
+#def apply_b4_caching(response):
+#    print('before ' + response.headers)
+
+
 # index page
 @app.route('/query', methods=['GET', 'POST'])
 @jwt_optional
@@ -161,25 +180,18 @@ def query():
     current_user = get_jwt_identity()
     print(current_user)
     
-    form = QueryForm()
-    fa = ['AC Milan - ManU','Arsenal-Bayern','Chelsea-Liverpool']
-    fa_ch = []
-    for idx,val in enumerate(fa):
-        fa_ch.append((idx,val))
-    uefa = ['Barca-MU','Arseanl-Chelase']
-    uefa_ch = []
-    for idx,val in enumerate(uefa):
-        uefa_ch.append((idx,val))
+    login_form = LoginForm()
+    query_form = QueryForm()
     wc = [u'Liverpool-NYC',u'NYC-SJS']
     wc_ch = []
     for idx,val in enumerate(wc):
         wc_ch.append(( str(idx),val))
-    form.match.choices = wc_ch
+    query_form.match.choices = wc_ch
     
-    if form.validate_on_submit():
-        flash('Your post is now live!')
-        return render_template('query.html', title='Query',figmsg="Hello World", form=form )
-    return render_template('query.html', title='Query', form=form)
+    if query_form.validate_on_submit():
+        flash('Query!')
+        return render_template('query.html', title='Query',figmsg="Hello World", query_form=query_form, login_form=login_form )
+    return render_template('query.html', title='Query',query_form=query_form, login_form=login_form)
     
 # index page
 @app.route('/', methods=['GET', 'POST'])
@@ -188,54 +200,71 @@ def index():
     # If no JWT is sent in with the request, get_jwt_identity()
     # will return None
     current_user = get_jwt_identity()
-    print(current_user)
-    
-    if current_user:
-        print("in query")
-        form = QueryForm()
-        fa = ['AC Milan - ManU','Arsenal-Bayern','Chelsea-Liverpool']
-        fa_ch = []
-        for idx,val in enumerate(fa):
-            fa_ch.append((idx,val))
-        uefa = ['Barca-MU','Arseanl-Chelase']
-        uefa_ch = []
-        for idx,val in enumerate(uefa):
-            uefa_ch.append((idx,val))
-        wc = [u'Liverpool-NYC',u'NYC-SJS']
-        wc_ch = []
-        for idx,val in enumerate(wc):
-            wc_ch.append(( str(idx),val))
-        form.match.choices = wc_ch         
-        if form.validate_on_submit():
-            print('query submitted')
-            flash('Your query is now live!')
-            return render_template('query.html', title='Query',figmsg="Hello World", form=form )
-        return render_template('query.html', title='Query', form=form)
+    print(current_user)    
+    login_form = LoginForm()
+    query_form = QueryForm()
+    wc = [u'Liverpool-NYC',u'NYC-SJS']
+    wc_ch = []
+    for idx,val in enumerate(wc):
+        wc_ch.append(( str(idx),val))
+    query_form.match.choices = wc_ch
+    if login_form.validate_on_submit():
+        flash('Login!')
+        access_token = create_access_token(identity=login_form.username.data)
+        g.auth = access_token
+    elif query_form.validate_on_submit():
+        flash('Query!')
     else:
+#        return render_template('query.html', title='Query',figmsg="Hello World", query_form=query_form, login_form=login_form )
+        flash('Index')
         g.auth = ''
-        form = LoginForm()
-        if form.validate_on_submit():
-            print('login')
-            flash('You login')
-            access_token = create_access_token(identity=form.username.data)
-            form = QueryForm()
-            fa = ['AC Milan - ManU','Arsenal-Bayern','Chelsea-Liverpool']
-            fa_ch = []
-            for idx,val in enumerate(fa):
-                fa_ch.append((idx,val))
-            uefa = ['Barca-MU','Arseanl-Chelase']
-            uefa_ch = []
-            for idx,val in enumerate(uefa):
-                uefa_ch.append((idx,val))
-            wc = [u'Liverpool-NYC',u'NYC-SJS']
-            wc_ch = []
-            for idx,val in enumerate(wc):
-                wc_ch.append(( str(idx),val))
-            form.match.choices = wc_ch            
-            g.auth = access_token
-            return render_template('query.html', title='Query', form=form)
-        print('index')
-        return render_template('login.html', title='Sign In', form=form)
+    return render_template('index.html', title='Index',query_form=query_form, login_form=login_form)
+#    if current_user:
+#        print("in query")
+#        form = QueryForm()
+#        fa = ['AC Milan - ManU','Arsenal-Bayern','Chelsea-Liverpool']
+#        fa_ch = []
+#        for idx,val in enumerate(fa):
+#            fa_ch.append((idx,val))
+#        uefa = ['Barca-MU','Arseanl-Chelase']
+#        uefa_ch = []
+#        for idx,val in enumerate(uefa):
+#            uefa_ch.append((idx,val))
+#        wc = [u'Liverpool-NYC',u'NYC-SJS']
+#        wc_ch = []
+#        for idx,val in enumerate(wc):
+#            wc_ch.append(( str(idx),val))
+#        form.match.choices = wc_ch         
+#        if form.validate_on_submit():
+#            print('query submitted')
+#            flash('Your query is now live!')
+#            return render_template('query.html', title='Query',figmsg="Hello World", form=form )
+#        return render_template('query.html', title='Query', form=form)
+#    else:
+#        g.auth = ''
+#        form = LoginForm()
+#        if form.validate_on_submit():
+#            print('login')
+#            flash('You login')
+#            access_token = create_access_token(identity=form.username.data)
+#            form = QueryForm()
+#            fa = ['AC Milan - ManU','Arsenal-Bayern','Chelsea-Liverpool']
+#            fa_ch = []
+#            for idx,val in enumerate(fa):
+#                fa_ch.append((idx,val))
+#            uefa = ['Barca-MU','Arseanl-Chelase']
+#            uefa_ch = []
+#            for idx,val in enumerate(uefa):
+#                uefa_ch.append((idx,val))
+#            wc = [u'Liverpool-NYC',u'NYC-SJS']
+#            wc_ch = []
+#            for idx,val in enumerate(wc):
+#                wc_ch.append(( str(idx),val))
+#            form.match.choices = wc_ch            
+#            g.auth = access_token
+#            return render_template('query.html', title='Query', form=form)
+#        print('index')
+#        return render_template('login.html', title='Sign In', form=form)
 
 # With debug=True, Flask server will auto-reload 
 # when there are code changes
