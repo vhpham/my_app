@@ -2,18 +2,47 @@
 {% block scripts %}
     {{ super() }}
 <script type="text/javascript" src="{{ url_for('static', filename='mscript.js') }}" id="myjs"> </script>
-
+<style type="text/css">
+ .topcorner{
+   position:absolute;
+   top:0;
+   right:0;
+  }
+.checkbox{ 
+   display:inline-block;
+} 
+.checkbox label {
+    min-height: 20px;
+    padding-left: 20px;
+    margin-bottom: 0;
+    font-weight: normal;
+    cursor: pointer;
+}
+.label {
+    font-size: 14px;
+}
+</style>
 {% endblock %}
 {% block title %}
     {% if title %}{{ title }} - Microblog{% else %}Welcome to Microblog{% endif %}
 {% endblock %}
 
 {% block content %}
+    <body onload="init();">
+    <div>
+        {% if current_user is not none %}
+        <div class="topcorner"><a id="logout" href="{{ url_for('logout') }}">Logout</a>
+        {% endif %}
+    </div>
+    <hr>    
     <div class="container" id="container">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
-            <div class="alert alert-info" role="alert">{{ message }}</div>
+            <div class="alert alert-info" role="alert">
+             <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+             {{ message }}
+             </div>
             {% endfor %}
         {% endif %}
         {% endwith %}
