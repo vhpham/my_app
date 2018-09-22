@@ -23,7 +23,7 @@ from flask_bootstrap import Bootstrap
 
 debug = True
 app = Flask(__name__)
-app.secret_key = '3000hanover'
+app.secret_key = '3000Hanover'
 app.config['JWT_SECRET_KEY'] = 'jwt-secret-string'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(minutes=60)
 app.config['JWT_BLACKLIST_ENABLED'] = True
